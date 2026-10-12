@@ -39,6 +39,7 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -201,6 +202,25 @@ public class TestKeyGenUtils {
     // tough case with a lot of ',' and ':'
     String[] s4 = KeyGenUtils.extractRecordKeysByFields("id1:1,,,id2:2024-10-22 14:11:53.023,id3:,,3,id4:::1:2::4::", fields);
     Assertions.assertArrayEquals(new String[] {"1,,", "2024-10-22 14:11:53.023", ",,3", "::1:2::4::"}, s4);
+  }
+
+  @Test
+  @Timeout(10)
+  public void testExtractRecordKeysWithFieldsSkipsValueContainingColon() {
+    String recordKey = "company_id:Z8a2344fb60a,message_id:1a8b9810-b345-4a73-bfec-43f2b3d0b5e9:0";
+    Assertions.assertArrayEquals(new String[] {"Z8a2344fb60a"},
+        KeyGenUtils.extractRecordKeysByFields(recordKey, Collections.singletonList("company_id")));
+    Assertions.assertArrayEquals(new String[] {"1a8b9810-b345-4a73-bfec-43f2b3d0b5e9:0"},
+        KeyGenUtils.extractRecordKeysByFields(recordKey, Collections.singletonList("message_id")));
+
+    // skipped values with ':' in the middle and at the end of the key
+    String multiKey = "id1:a:0,id2:b,id3:c:1:2";
+    Assertions.assertArrayEquals(new String[] {"b"},
+        KeyGenUtils.extractRecordKeysByFields(multiKey, Collections.singletonList("id2")));
+    Assertions.assertArrayEquals(new String[] {"a:0"},
+        KeyGenUtils.extractRecordKeysByFields(multiKey, Collections.singletonList("id1")));
+    Assertions.assertArrayEquals(new String[] {"c:1:2"},
+        KeyGenUtils.extractRecordKeysByFields(multiKey, Collections.singletonList("id3")));
   }
 
   @Test

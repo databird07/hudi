@@ -236,14 +236,14 @@ public class KeyGenUtils {
           processed = recordKey.length();
         } else {
           commaPosition = recordKey.lastIndexOf(DEFAULT_RECORD_KEY_PARTS_SEPARATOR, keyValueSep2);
-          while (commaPosition < keyValueSep1) {
+          while (commaPosition < keyValueSep1 && keyValueSep2 > 0) {
             // described above
             keyValueSep2 = recordKey.indexOf(DEFAULT_COLUMN_VALUE_SEPARATOR, keyValueSep2 + 1);
             commaPosition = recordKey.lastIndexOf(DEFAULT_RECORD_KEY_PARTS_SEPARATOR, keyValueSep2);
           }
-          if (commaPosition < 0) {
-            // if something went wrong, and there is no ',', we should stop here, and pass the whole recordKey,
-            // otherwise processed = commaPosition + 1 would lead to infinite loop
+          if (commaPosition < keyValueSep1) {
+            // the skipped value is the last one and contains ':', so there is no ',' after it;
+            // processed = commaPosition + 1 would move backwards and loop forever
             processed = recordKey.length();
           } else {
             processed = commaPosition + 1;
