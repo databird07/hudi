@@ -177,6 +177,36 @@ public class TestKafkaOffsetGen {
   }
 
   @Test
+  public void testKafkaDelayCountEmittedOnEveryPath() {
+    HoodieTestDataGenerator dataGenerator = new HoodieTestDataGenerator();
+    testUtils.createTopic(testTopicName, 1);
+    testUtils.sendMessages(testTopicName, Helpers.jsonifyRecords(dataGenerator.generateInserts("000", 1000)));
+
+    // no checkpoint, auto reset to earliest
+    HoodieIngestionMetrics earliestMetrics = mock(HoodieIngestionMetrics.class);
+    new KafkaOffsetGen(getConsumerConfigs("earliest", KAFKA_CHECKPOINT_TYPE_STRING))
+        .getNextOffsetRanges(Option.empty(), 500, earliestMetrics);
+    verify(earliestMetrics).updateStreamerSourceDelayCount("kafkaDelayCount", 1000L);
+
+    // no checkpoint, auto reset to latest
+    HoodieIngestionMetrics latestMetrics = mock(HoodieIngestionMetrics.class);
+    new KafkaOffsetGen(getConsumerConfigs("latest", KAFKA_CHECKPOINT_TYPE_STRING))
+        .getNextOffsetRanges(Option.empty(), 500, latestMetrics);
+    verify(latestMetrics).updateStreamerSourceDelayCount("kafkaDelayCount", 0L);
+
+    KafkaOffsetGen kafkaOffsetGen = new KafkaOffsetGen(getConsumerConfigs("latest", KAFKA_CHECKPOINT_TYPE_STRING));
+    // valid checkpoint with lag
+    HoodieIngestionMetrics laggingMetrics = mock(HoodieIngestionMetrics.class);
+    kafkaOffsetGen.getNextOffsetRanges(Option.of(new StreamerCheckpointV2(testTopicName + ",0:250")), 500, laggingMetrics);
+    verify(laggingMetrics).updateStreamerSourceDelayCount("kafkaDelayCount", 750L);
+
+    // valid checkpoint, caught up
+    HoodieIngestionMetrics caughtUpMetrics = mock(HoodieIngestionMetrics.class);
+    kafkaOffsetGen.getNextOffsetRanges(Option.of(new StreamerCheckpointV2(testTopicName + ",0:1000")), 500, caughtUpMetrics);
+    verify(caughtUpMetrics).updateStreamerSourceDelayCount("kafkaDelayCount", 0L);
+  }
+
+  @Test
   public void testGetNextOffsetRangesFromTimestampCheckpointType() {
     HoodieTestDataGenerator dataGenerator = new HoodieTestDataGenerator();
     testUtils.createTopic(testTopicName, 1);

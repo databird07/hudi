@@ -318,7 +318,6 @@ public class KafkaOffsetGen {
       // Determine the offset ranges to read from
       if (lastCheckpointStr.isPresent() && !lastCheckpointStr.get().isEmpty() && checkTopicCheckpoint(lastCheckpointStr)) {
         fromOffsets = fetchValidOffsets(consumer, lastCheckpointStr, topicPartitions);
-        metrics.updateStreamerSourceDelayCount(METRIC_NAME_KAFKA_DELAY_COUNT, delayOffsetCalculation(lastCheckpointStr, topicPartitions, consumer));
       } else {
         switch (autoResetValue) {
           case EARLIEST:
@@ -344,6 +343,8 @@ public class KafkaOffsetGen {
       // Obtain the latest offsets.
       toOffsets = consumer.endOffsets(topicPartitions);
     }
+    // emitted on every path, including auto reset and when caught up (0)
+    metrics.updateStreamerSourceDelayCount(METRIC_NAME_KAFKA_DELAY_COUNT, delayCount(fromOffsets, toOffsets));
     return CheckpointUtils.computeOffsetRanges(fromOffsets, toOffsets, numEvents, minPartitions);
   }
 
@@ -440,14 +441,11 @@ public class KafkaOffsetGen {
     }
   }
 
-  private Long delayOffsetCalculation(Option<String> lastCheckpointStr, Set<TopicPartition> topicPartitions, KafkaConsumer consumer) {
-    Long delayCount = 0L;
-    Map<TopicPartition, Long> checkpointOffsets = CheckpointUtils.strToOffsets(lastCheckpointStr.get());
-    Map<TopicPartition, Long> lastOffsets = consumer.endOffsets(topicPartitions);
-
-    for (Map.Entry<TopicPartition, Long> entry : lastOffsets.entrySet()) {
-      Long offset = checkpointOffsets.getOrDefault(entry.getKey(), 0L);
-      delayCount += entry.getValue() - offset > 0 ? entry.getValue() - offset : 0L;
+  static long delayCount(Map<TopicPartition, Long> fromOffsets, Map<TopicPartition, Long> toOffsets) {
+    long delayCount = 0L;
+    for (Map.Entry<TopicPartition, Long> entry : toOffsets.entrySet()) {
+      long offset = fromOffsets.getOrDefault(entry.getKey(), 0L);
+      delayCount += Math.max(entry.getValue() - offset, 0L);
     }
     return delayCount;
   }
