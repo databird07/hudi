@@ -18,6 +18,7 @@
 
 package org.apache.hudi.common;
 
+import org.apache.hudi.common.metrics.LocalRegistry;
 import org.apache.hudi.common.metrics.Registry;
 
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -37,6 +40,33 @@ public class TestRegistry {
   public void testGetRegistry() throws Exception {
     Registry r = Registry.getRegistry("testGetRegistry_1");
     assertEquals(r, Registry.getRegistry("testGetRegistry_1"));
+  }
+
+  @Test
+  public void testGetRegistryOfClassReturnsRequestedClass() {
+    Registry local = Registry.getRegistryOfClass("", "testClassMismatch", LocalRegistry.class.getName());
+    assertEquals(LocalRegistry.class, local.getClass());
+
+    Registry other = Registry.getRegistryOfClass("", "testClassMismatch", OtherRegistry.class.getName());
+    assertEquals(OtherRegistry.class, other.getClass());
+    assertEquals("testClassMismatch", other.getName());
+    assertSame(other, Registry.getRegistryOfClass("", "testClassMismatch", OtherRegistry.class.getName()));
+  }
+
+  @Test
+  public void testGetRegistryOfClassIsTableScoped() {
+    Registry table1 = Registry.getRegistryOfClass("table1", "testTableScoped", LocalRegistry.class.getName());
+    Registry table2 = Registry.getRegistryOfClass("table2", "testTableScoped", OtherRegistry.class.getName());
+    assertNotSame(table1, table2);
+    assertEquals("table1.testTableScoped", table1.getName());
+    assertEquals("table2.testTableScoped", table2.getName());
+    assertSame(table1, Registry.getRegistryOfClass("table1", "testTableScoped", LocalRegistry.class.getName()));
+  }
+
+  public static class OtherRegistry extends LocalRegistry {
+    public OtherRegistry(String name) {
+      super(name);
+    }
   }
 
   private void registerMetrics(Map<String, Long> map, Registry registry) {

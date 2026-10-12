@@ -27,6 +27,7 @@ import org.apache.hudi.client.common.HoodieSparkEngineContext;
 import org.apache.hudi.common.data.HoodieData;
 import org.apache.hudi.common.engine.EngineType;
 import org.apache.hudi.common.engine.HoodieEngineContext;
+import org.apache.hudi.common.metrics.LocalRegistry;
 import org.apache.hudi.common.metrics.Registry;
 import org.apache.hudi.common.model.HoodieFailedWritesCleaningPolicy;
 import org.apache.hudi.common.model.HoodieFileGroupId;
@@ -97,11 +98,12 @@ public class SparkHoodieBackedTableMetadataWriterTableVersionSix extends HoodieB
     if (metadataWriteConfig.isMetricsOn()) {
       Registry registry;
       if (metadataWriteConfig.isExecutorMetricsEnabled() && metadataWriteConfig.getMetricsReporterType() != MetricsReporterType.INMEMORY) {
-        DistributedRegistry distRegistry = (DistributedRegistry) Registry.getRegistry("HoodieMetadata", DistributedRegistry.class.getName());
+        DistributedRegistry distRegistry = (DistributedRegistry) Registry.getRegistryOfClass(
+            dataWriteConfig.getTableName(), METADATA_REGISTRY_NAME, DistributedRegistry.class.getName());
         HoodieSparkEngineContext sparkEngineContext = (HoodieSparkEngineContext) engineContext;
         registry = distRegistry.register(sparkEngineContext.getJavaSparkContext());
       } else {
-        registry = Registry.getRegistry("HoodieMetadata");
+        registry = Registry.getRegistryOfClass(dataWriteConfig.getTableName(), METADATA_REGISTRY_NAME, LocalRegistry.class.getName());
       }
       this.metrics = Option.of(new HoodieMetadataMetrics(metadataWriteConfig.getMetricsConfig(), dataMetaClient.getStorage(), dataWriteConfig.getMetadataConfig().isDetailedMetricsEnabled()));
     } else {

@@ -147,6 +147,9 @@ public abstract class HoodieBackedTableMetadataWriter<I, O> implements HoodieTab
 
   private transient BaseHoodieWriteClient<?, I, ?, O> writeClient;
 
+  // keyed per data table, so tables in the same JVM with different metrics settings do not share it
+  protected static final String METADATA_REGISTRY_NAME = "HoodieMetadata";
+
   protected HoodieWriteConfig metadataWriteConfig;
   protected HoodieWriteConfig dataWriteConfig;
 

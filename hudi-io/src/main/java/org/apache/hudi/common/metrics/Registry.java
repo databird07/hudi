@@ -95,17 +95,20 @@ public interface Registry extends Serializable {
    */
   static Registry getRegistryOfClass(String tableName, String registryName, String clazz) {
     String key = makeKey(tableName, registryName);
-    Registry registry = REGISTRY_MAP.computeIfAbsent(key, k -> {
+    return REGISTRY_MAP.compute(key, (k, existing) -> {
+      if (existing != null) {
+        if (existing.getClass().getName().equals(clazz)) {
+          return existing;
+        }
+        // never hand out a registry of a different class than requested, callers cast to it
+        LOG.warn("Registry {} already exists with class {}, replacing it with a new registry of the requested class {}",
+            k, existing.getClass().getName(), clazz);
+      }
       String registryFullName = tableName.isEmpty() ? registryName : tableName + "." + registryName;
       Registry r = (Registry) ReflectionUtils.loadClass(clazz, registryFullName);
       LOG.info("Created a new registry {}", r);
       return r;
     });
-
-    if (!registry.getClass().getName().equals(clazz)) {
-      LOG.error("Registry with name {} already exists with a different class {} than the requested class {}", registryName, registry.getClass().getName(), clazz);
-    }
-    return registry;
   }
 
   /**
