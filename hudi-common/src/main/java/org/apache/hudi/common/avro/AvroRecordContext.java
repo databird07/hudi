@@ -108,6 +108,15 @@ public class AvroRecordContext extends RecordContext<IndexedRecord> {
   }
 
   @Override
+  protected Object getOrderingFieldValue(IndexedRecord record, HoodieSchema schema, String fieldName) {
+    // convert logical types (e.g. decimal fixed/bytes to BigDecimal) the same way as
+    // HoodieAvroIndexedRecord#getOrderingValue, otherwise the values can not be compared
+    return record instanceof GenericRecord
+        ? HoodieAvroUtils.getNestedFieldVal((GenericRecord) record, fieldName, true, false)
+        : getValue(record, schema, fieldName);
+  }
+
+  @Override
   public String getMetaFieldValue(IndexedRecord record, int pos) {
     return record.get(pos).toString();
   }

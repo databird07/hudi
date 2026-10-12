@@ -19,10 +19,13 @@
 
 package org.apache.hudi.common.avro;
 
+import org.apache.hudi.common.model.HoodieAvroIndexedRecord;
 import org.apache.hudi.common.model.MetaFieldsMode;
 import org.apache.hudi.common.schema.HoodieSchema;
 import org.apache.hudi.common.table.HoodieTableConfig;
 
+import org.apache.avro.Conversions;
+import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -32,9 +35,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 import static org.apache.hudi.common.avro.AvroRecordContext.getFieldValueFromIndexedRecord;
@@ -109,6 +116,33 @@ class TestAvroRecordContext {
         Arguments.of("id,name", null, "id:1,name:alice"),
         Arguments.of("id,name", "name", "id:1,name:alice"),
         Arguments.of("id,name", "name,address.city", "id:1,name:alice"));
+  }
+
+  @Test
+  void testOrderingValueConvertsLogicalTypes() {
+    Schema decimalSchema = LogicalTypes.decimal(10, 2).addToSchema(Schema.createFixed("fixed_dec", null, null, 5));
+    Schema dateSchema = LogicalTypes.date().addToSchema(Schema.create(Schema.Type.INT));
+    Schema schema = Schema.createRecord("ordering", null, null, false, Arrays.asList(
+        new Schema.Field("id", Schema.create(Schema.Type.INT), null, null),
+        new Schema.Field("dec", Schema.createUnion(Schema.create(Schema.Type.NULL), decimalSchema), null, Schema.Field.NULL_DEFAULT_VALUE),
+        new Schema.Field("dt", dateSchema, null, null)));
+    HoodieSchema hoodieSchema = HoodieSchema.fromAvroSchema(schema);
+
+    BigDecimal decimal = new BigDecimal("123.45");
+    GenericRecord record = new GenericData.Record(schema);
+    record.put("id", 1);
+    record.put("dec", new Conversions.DecimalConversion().toFixed(decimal, decimalSchema, decimalSchema.getLogicalType()));
+    record.put("dt", 19000);
+
+    AvroRecordContext recordContext = new AvroRecordContext();
+    Comparable decimalOrderingValue = recordContext.getOrderingValue(record, hoodieSchema, Collections.singletonList("dec"));
+    assertEquals(decimal, decimalOrderingValue);
+    assertEquals(LocalDate.ofEpochDay(19000), recordContext.getOrderingValue(record, hoodieSchema, new String[] {"dt"}));
+
+    // must be comparable with the ordering value of an incoming record with the same schema
+    Comparable incomingOrderingValue = new HoodieAvroIndexedRecord(record)
+        .getOrderingValue(hoodieSchema, new Properties(), new String[] {"dec"});
+    assertEquals(0, decimalOrderingValue.compareTo(incomingOrderingValue));
   }
 
   @Test

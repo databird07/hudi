@@ -358,10 +358,20 @@ public abstract class RecordContext<T> implements Serializable {
     }
 
     return OrderingValues.create(orderingFieldNames, field -> {
-      Object value = getValue(record, schema, field);
+      Object value = getOrderingFieldValue(record, schema, field);
       // API getDefaultOrderingValue is only used inside Comparables constructor
       return value != null ? ensureComparability(value) : OrderingValues.getDefault();
     });
+  }
+
+  /**
+   * Gets the value of an ordering field from the record.
+   *
+   * <p> The value should be aligned with HoodieRecord#getOrderingValue, so that ordering values
+   * of records read through this context compare with ordering values of incoming records.
+   */
+  protected Object getOrderingFieldValue(T record, HoodieSchema schema, String fieldName) {
+    return getValue(record, schema, fieldName);
   }
 
   /**
@@ -406,7 +416,7 @@ public abstract class RecordContext<T> implements Serializable {
     }
 
     return OrderingValues.create(orderingFieldNames, field -> {
-      Object value = getValue(record, schema, field);
+      Object value = getOrderingFieldValue(record, schema, field);
       // API getDefaultOrderingValue is only used inside Comparables constructor
       return value != null ? ensureComparability(value) : OrderingValues.getDefault();
     });
