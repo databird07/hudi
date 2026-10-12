@@ -251,7 +251,6 @@ public class CleanActionExecutor<T, I, K, O> extends BaseActionExecutor<T, I, K,
   }
 
   private static HoodieCleanMetadata createEmptyCleanMetadata(HoodieCleanerPlan cleanerPlan, HoodieInstant inflightInstant, long timeTakenMillis) {
-    ValidationUtils.checkArgument(cleanerPlan.getEarliestInstantToRetain() != null, "For empty cleans, earliest instant to retain can never be null");
     HoodieCleanMetadata.Builder cleanMetadataBuilder = HoodieCleanMetadata.newBuilder()
         .setStartCleanTime(inflightInstant.requestedTime())
         .setTimeTakenInMillis(timeTakenMillis)
@@ -260,10 +259,11 @@ public class CleanActionExecutor<T, I, K, O> extends BaseActionExecutor<T, I, K,
         .setVersion(CLEAN_METADATA_VERSION_2)
         .setPartitionMetadata(Collections.emptyMap())
         .setExtraMetadata(cleanerPlan.getExtraMetadata())
-        .setBootstrapPartitionMetadata(Collections.emptyMap());
-    if (cleanerPlan.getEarliestInstantToRetain() != null) {
-      cleanMetadataBuilder.setEarliestCommitToRetain(cleanerPlan.getEarliestInstantToRetain().getTimestamp());
-    }
+        .setBootstrapPartitionMetadata(Collections.emptyMap())
+        // a plan can have no earliest instant to retain, e.g. when there are not enough commits yet;
+        // readers treat an empty value as "no boundary"
+        .setEarliestCommitToRetain(cleanerPlan.getEarliestInstantToRetain() != null
+            ? cleanerPlan.getEarliestInstantToRetain().getTimestamp() : "");
     return cleanMetadataBuilder.build();
   }
 

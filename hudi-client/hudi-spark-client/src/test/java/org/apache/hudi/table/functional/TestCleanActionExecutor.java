@@ -46,6 +46,7 @@ import org.apache.hudi.table.action.clean.CleanActionExecutor;
 import org.apache.hudi.table.action.clean.CleanPlanner;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -63,6 +64,8 @@ import static org.apache.hudi.common.testutils.HoodieTestUtils.INSTANT_GENERATOR
 import static org.apache.hudi.common.testutils.HoodieTestUtils.convertMetadataToByteArray;
 import static org.apache.hudi.common.testutils.HoodieTestUtils.getDefaultStorageConf;
 import static org.apache.hudi.common.testutils.HoodieTestUtils.getLocalStorage;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -184,6 +187,45 @@ public class TestCleanActionExecutor {
     }
     // file deletions must not stat the path first; deletes go straight to storage
     verify(storage, never()).getPathInfo(filePath);
+  }
+
+  @Test
+  void testPendingEmptyCleanWithoutEarliestInstantToRetain() throws IOException {
+    HoodieWriteConfig config = getCleanByCommitsConfig();
+    // an empty clean plan persisted while the planner had no earliest commit to retain
+    HoodieCleanerPlan cleanerPlan = HoodieCleanerPlan.newBuilder()
+        .setPolicy(HoodieCleaningPolicy.KEEP_LATEST_COMMITS.name())
+        .setVersion(CleanPlanner.LATEST_CLEAN_PLAN_VERSION)
+        .setFilePathsToBeDeletedPerPartition(Collections.emptyMap())
+        .setExtraMetadata(Collections.emptyMap())
+        .build();
+
+    HoodieActiveTimeline activeTimeline = mock(HoodieActiveTimeline.class);
+    when(metaClient.getActiveTimeline()).thenReturn(activeTimeline);
+    when(mockHoodieTable.getActiveTimeline()).thenReturn(activeTimeline);
+    HoodieInstant cleanInstant = INSTANT_GENERATOR.createNewInstant(HoodieInstant.State.REQUESTED, HoodieTimeline.CLEAN_ACTION, "002");
+    HoodieActiveTimeline cleanTimeline = mock(HoodieActiveTimeline.class);
+    when(activeTimeline.getCleanerTimeline()).thenReturn(cleanTimeline);
+    when(cleanTimeline.getInstants()).thenReturn(Collections.singletonList(cleanInstant));
+    when(activeTimeline.readCleanerPlan(cleanInstant)).thenReturn(cleanerPlan);
+    when(activeTimeline.readCleanerInfoAsBytes(cleanInstant)).thenReturn(Option.of(convertMetadataToByteArray(cleanerPlan)));
+
+    when(mockHoodieTable.getCleanTimeline()).thenReturn(cleanTimeline);
+    when(mockHoodieTable.getInstantGenerator()).thenReturn(INSTANT_GENERATOR);
+    when(mockHoodieTable.getInstantFileNameGenerator()).thenReturn(INSTANT_FILE_NAME_GENERATOR);
+    when(mockHoodieTable.getInstantFileNameParser()).thenReturn(INSTANT_FILE_NAME_PARSER);
+    HoodieTimeline inflightsAndRequestedTimeline = mock(HoodieTimeline.class);
+    when(cleanTimeline.filterInflightsAndRequested()).thenReturn(inflightsAndRequestedTimeline);
+    when(inflightsAndRequestedTimeline.getInstants()).thenReturn(Collections.singletonList(cleanInstant));
+    when(activeTimeline.transitionCleanRequestedToInflight(any())).thenReturn(INSTANT_GENERATOR.createNewInstant(HoodieInstant.State.INFLIGHT, HoodieTimeline.CLEAN_ACTION, "002"));
+    when(mockHoodieTable.getMetadataWriter("002")).thenReturn(Option.empty());
+
+    CleanActionExecutor cleanActionExecutor = new CleanActionExecutor(context, config, mockHoodieTable, "002");
+    HoodieCleanMetadata cleanMetadata = cleanActionExecutor.execute();
+    assertNotNull(cleanMetadata);
+    assertEquals(0, cleanMetadata.getTotalFilesDeleted());
+    assertTrue(cleanMetadata.getPartitionMetadata().isEmpty());
+    assertEquals("", cleanMetadata.getEarliestCommitToRetain());
   }
 
   private void assertCleanExecutionFailure(CleanActionExecutor cleanActionExecutor) {
