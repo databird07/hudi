@@ -54,14 +54,15 @@ public class NioPermissionLocalFileSystem extends LocalFileSystem {
   }
 
   /**
-   * Makes {@code conf} use this file system for the {@code file} scheme, and replaces a stock local file
-   * system already in the JVM-wide FileSystem cache, which would otherwise keep being returned. Needed by
+   * Points the {@code file} scheme of {@code conf} at this file system (or {@link WithHiveRename}, see below),
+   * and replaces the current user's cached local file system, which would otherwise keep being returned. Needed by
    * harnesses that build their configuration with {@code new Configuration(false)} and so never read a
    * test core-site.xml. The replaced instance is closed, which deletes its {@code deleteOnExit} paths.
    *
    * <p>Where the {@code file} scheme resolves to Hive's {@code ProxyLocalFileSystem} (classpaths with
    * hive-exec, such as hudi-utilities and hudi-spark), {@link WithHiveRename} is used so that renaming
-   * onto an existing file still fails. Any other local file system implementation is left in place.
+   * onto an existing file still fails. Any other local file system implementation is left in place and
+   * {@code conf} is not changed.
    */
   public static void install(Configuration conf) throws IOException {
     Class<? extends FileSystem> stock = FileSystem.getFileSystemClass("file", new Configuration(false));
