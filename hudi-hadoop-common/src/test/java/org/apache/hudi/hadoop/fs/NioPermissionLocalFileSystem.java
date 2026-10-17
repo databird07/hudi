@@ -41,10 +41,13 @@ import java.util.Set;
  * this way; sticky/setuid/setgid modes, directories carrying setuid/setgid bits (which chmod
  * preserves) and file systems without POSIX attributes fall back to the stock implementation.
  *
- * <p>Without this override the {@code file} scheme resolves through the FileSystem service loader to
- * Hive's {@code ProxyLocalFileSystem}, so its {@link #rename} contract is kept as well.
+ * <p>Use {@link #install} rather than naming the class in a configuration: it keeps the rename
+ * contract of whichever local file system the {@code file} scheme resolves to on the classpath.
  */
 public class NioPermissionLocalFileSystem extends LocalFileSystem {
+
+  private static final String HIVE_PROXY_LOCAL_FS = "org.apache.hadoop.hive.ql.io.ProxyLocalFileSystem";
+  private static final URI LOCAL_FS_URI = URI.create("file:///");
 
   public NioPermissionLocalFileSystem() {
     super(new NioPermissionRawLocalFileSystem());
@@ -53,26 +56,42 @@ public class NioPermissionLocalFileSystem extends LocalFileSystem {
   /**
    * Makes {@code conf} use this file system for the {@code file} scheme, and replaces a stock local file
    * system already in the JVM-wide FileSystem cache, which would otherwise keep being returned. Needed by
-   * harnesses that build their configuration with {@code new Configuration(false)} and so never read
-   * the test core-site.xml.
+   * harnesses that build their configuration with {@code new Configuration(false)} and so never read a
+   * test core-site.xml. The replaced instance is closed, which deletes its {@code deleteOnExit} paths.
+   *
+   * <p>Where the {@code file} scheme resolves to Hive's {@code ProxyLocalFileSystem} (classpaths with
+   * hive-exec, such as hudi-utilities and hudi-spark), {@link WithHiveRename} is used so that renaming
+   * onto an existing file still fails. Any other local file system implementation is left in place.
    */
   public static void install(Configuration conf) throws IOException {
-    conf.set("fs.file.impl", NioPermissionLocalFileSystem.class.getName());
-    FileSystem cached = FileSystem.get(URI.create("file:///"), conf);
-    if (!(cached instanceof NioPermissionLocalFileSystem)) {
+    Class<? extends FileSystem> stock = FileSystem.getFileSystemClass("file", new Configuration(false));
+    Class<? extends FileSystem> impl;
+    if (stock == LocalFileSystem.class) {
+      impl = NioPermissionLocalFileSystem.class;
+    } else if (HIVE_PROXY_LOCAL_FS.equals(stock.getName())) {
+      impl = WithHiveRename.class;
+    } else {
+      return;
+    }
+    conf.set("fs.file.impl", impl.getName());
+    FileSystem cached = FileSystem.get(LOCAL_FS_URI, conf);
+    if (cached.getClass() != impl) {
       cached.close();
+      FileSystem.get(LOCAL_FS_URI, conf);
     }
   }
 
-  @Override
-  public boolean rename(Path src, Path dst) throws IOException {
-    // same as Hive's ProxyLocalFileSystem: an existing destination file fails the rename
-    return !isFile(dst) && super.rename(src, dst);
+  /**
+   * {@link NioPermissionLocalFileSystem} with the rename contract of Hive's {@code ProxyLocalFileSystem}.
+   */
+  public static class WithHiveRename extends NioPermissionLocalFileSystem {
+    @Override
+    public boolean rename(Path src, Path dst) throws IOException {
+      // same as ProxyLocalFileSystem: an existing destination file fails the rename
+      return !isFile(dst) && super.rename(src, dst);
+    }
   }
 
-  /**
-   * Raw local file system that sets permissions with java.nio.
-   */
   public static class NioPermissionRawLocalFileSystem extends RawLocalFileSystem {
     private static final PosixFilePermission[] BITS = {
         PosixFilePermission.OTHERS_EXECUTE, PosixFilePermission.OTHERS_WRITE, PosixFilePermission.OTHERS_READ,
