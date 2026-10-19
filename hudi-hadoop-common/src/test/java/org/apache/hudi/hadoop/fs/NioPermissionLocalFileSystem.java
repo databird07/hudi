@@ -20,14 +20,19 @@
 package org.apache.hudi.hadoop.fs;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocalFileSystem;
+import org.apache.hadoop.fs.NioLocalFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RawLocalFileSystem;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.nativeio.NativeIO;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
@@ -40,6 +45,8 @@ import java.util.Set;
  * native library is not available (the usual case for tests). Only plain rwx modes are handled
  * this way; sticky/setuid/setgid modes, directories carrying setuid/setgid bits (which chmod
  * preserves) and file systems without POSIX attributes fall back to the stock implementation.
+ * Likewise the file statuses it returns read permission, owner and group through java.nio instead of
+ * forking {@code ls -ld} (see {@link NioLocalFileStatus}).
  *
  * <p>Use {@link #install} rather than naming the class in a configuration: it keeps the rename
  * contract of whichever local file system the {@code file} scheme resolves to on the classpath.
@@ -98,6 +105,52 @@ public class NioPermissionLocalFileSystem extends LocalFileSystem {
         PosixFilePermission.OTHERS_EXECUTE, PosixFilePermission.OTHERS_WRITE, PosixFilePermission.OTHERS_READ,
         PosixFilePermission.GROUP_EXECUTE, PosixFilePermission.GROUP_WRITE, PosixFilePermission.GROUP_READ,
         PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_READ};
+
+    // Hadoop 3.x caches the block size of its statuses at initialize; 2.10 reads it from the conf on every call
+    private static final Field DEFAULT_BLOCK_SIZE = defaultBlockSizeField();
+
+    private static Field defaultBlockSizeField() {
+      try {
+        Field field = RawLocalFileSystem.class.getDeclaredField("defaultBlockSize");
+        field.setAccessible(true);
+        return field;
+      } catch (ReflectiveOperationException | RuntimeException e) {
+        return null;
+      }
+    }
+
+    private long blockSize(Path f) {
+      if (DEFAULT_BLOCK_SIZE != null) {
+        try {
+          return DEFAULT_BLOCK_SIZE.getLong(this);
+        } catch (IllegalAccessException e) {
+          // fall through to what Hadoop 2.10 does
+        }
+      }
+      return getDefaultBlockSize(f);
+    }
+
+    @Override
+    public FileStatus getFileStatus(Path f) throws IOException {
+      if (!NioLocalFileStatus.replacesStockStatus()) {
+        return super.getFileStatus(f);
+      }
+      File file = pathToFile(f);
+      if (!file.exists()) {
+        throw new FileNotFoundException("File " + f + " does not exist");
+      }
+      return NioLocalFileStatus.of(file, blockSize(f), this);
+    }
+
+    @Override
+    public FileStatus[] listStatus(Path f) throws IOException {
+      File file = pathToFile(f);
+      // a directory's entries come from getFileStatus; anything that is not a directory is listed as its own status
+      if (NioLocalFileStatus.replacesStockStatus() && file.exists() && !file.isDirectory()) {
+        return new FileStatus[] {NioLocalFileStatus.of(file, blockSize(f), this)};
+      }
+      return super.listStatus(f);
+    }
 
     @Override
     public void setPermission(Path p, FsPermission permission) throws IOException {
