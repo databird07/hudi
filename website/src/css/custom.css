@@ -650,7 +650,7 @@ div[class^="announcementBar"][role="banner"] {
   content: "";
   width: 20px;
   height: 20px;
-  background-color: #0b2547;
+  background-color: #0A2038;
   -webkit-mask: var(--nav-icon) center / contain no-repeat;
   mask: var(--nav-icon) center / contain no-repeat;
 }
@@ -674,7 +674,7 @@ div[class^="announcementBar"][role="banner"] {
 .navbar__link.header-cta {
   margin-left: 8px;
   padding: 9px 16px !important;
-  background: #061a33;
+  background: #00152E;
   color: #fff !important;
   font-weight: 500;
   font-size: 14px;
@@ -682,7 +682,7 @@ div[class^="announcementBar"][role="banner"] {
 }
 
 .navbar__link.header-cta:hover {
-  background: #0b2547;
+  background: #0A2038;
 }
 
 .navbar__link.header-cta svg {

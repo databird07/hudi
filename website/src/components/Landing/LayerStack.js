@@ -12,8 +12,7 @@ const LAYERS = [
   { y: 38, top: ["#FFFFFF", "#EAF7FD"], left: "#C9EBFA", right: "#AEDDF3", grid: 0.5 },
 ];
 
-const diamond = (y) =>
-  `${CX},${y} ${CX + W},${y + H} ${CX},${y + 2 * H} ${CX - W},${y + H}`;
+const diamond = (y) => `${CX},${y} ${CX + W},${y + H} ${CX},${y + 2 * H} ${CX - W},${y + H}`;
 
 function gridLines(y) {
   const lines = [];

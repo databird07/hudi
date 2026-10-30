@@ -1,16 +1,16 @@
 .landing {
-  --l-navy-950: #040f22;
-  --l-navy-900: #061a33;
-  --l-navy-800: #0b2547;
-  --l-navy-700: #12325c;
-  --l-blue-700: #1559b4;
-  --l-blue-600: #1a6dd0;
-  --l-blue-400: #3ba3f0;
-  --l-blue-200: #bfe6f8;
-  --l-ink: #0d1726;
-  --l-body: #4b5768;
-  --l-muted: #6b7686;
-  --l-line: #e2e7ee;
+  --l-navy-950: #00152e;
+  --l-navy-900: #00152e;
+  --l-navy-800: #0a2038;
+  --l-navy-700: #0b3a6b;
+  --l-blue-700: #1668c4;
+  --l-blue-600: #1668c4;
+  --l-blue-400: #2b9be8;
+  --l-blue-200: #c5ecf9;
+  --l-ink: #0a1628;
+  --l-body: #4b5d72;
+  --l-muted: #5e7087;
+  --l-line: #d9dee8;
   --l-tint: #f5f7fa;
   --l-head: "Space Grotesk Variable", "Space Grotesk", system-ui, sans-serif;
   --l-sans: "Inter Variable", "Inter", system-ui, -apple-system, sans-serif;
@@ -136,7 +136,9 @@
   font-size: 15px;
   font-weight: 500;
   line-height: 1;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .buttonLabel {
@@ -263,7 +265,7 @@
   font-family: var(--l-mono);
   font-size: 10.5px;
   font-weight: 500;
-  border-radius: 3px;
+  border-radius: 2px;
   color: #fff;
   flex: none;
 }
@@ -277,10 +279,19 @@
   padding: 4px 8px;
 }
 
-.badge_L1 { background: var(--l-navy-800); }
-.badge_L2 { background: var(--l-blue-600); }
-.badge_L3 { background: var(--l-blue-400); }
-.badge_L4 { background: var(--l-blue-200); color: var(--l-navy-800); }
+.badge_L1 {
+  background: var(--l-navy-800);
+}
+.badge_L2 {
+  background: var(--l-blue-600);
+}
+.badge_L3 {
+  background: var(--l-blue-400);
+}
+.badge_L4 {
+  background: var(--l-blue-200);
+  color: var(--l-navy-800);
+}
 
 .mono {
   font-family: var(--l-mono);
@@ -303,6 +314,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  padding: 6px 12px 6px 10px;
   font-family: var(--l-mono);
   font-size: 12px;
   letter-spacing: 0.14em;
@@ -312,10 +324,11 @@
 }
 
 .heroTitle {
-  font-size: clamp(42px, 6vw, 76px);
+  font-size: clamp(40px, 5.4vw, 66px);
   line-height: 1.03;
   font-weight: 500;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.035em;
+  max-width: 820px;
 }
 
 .heroLead {
@@ -330,19 +343,12 @@
   position: relative;
   border-top: 1px solid var(--l-line);
   border-bottom: 1px solid var(--l-line);
-  background: radial-gradient(ellipse at 35% 55%, #ffffff 0%, rgba(255, 255, 255, 0.7) 35%, rgba(255, 255, 255, 0) 70%),
-    linear-gradient(180deg, #f3f7fb, #eef4fa);
+  background: #f5f7fa url("/assets/images/home/halftone-band.webp") center / cover no-repeat;
+  overflow: hidden;
 }
 
 .heroStage::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(59, 163, 240, 0.55) 1.1px, transparent 1.4px);
-  background-size: 14px 14px;
-  -webkit-mask-image: radial-gradient(ellipse at 40% 50%, transparent 35%, #000 85%);
-  mask-image: radial-gradient(ellipse at 40% 50%, transparent 35%, #000 85%);
-  pointer-events: none;
+  content: none;
 }
 
 .heroStageInner {
@@ -357,9 +363,10 @@
 
 .heroStack {
   width: 100%;
-  max-width: 440px;
+  max-width: 400px;
+  height: auto;
   justify-self: end;
-  filter: drop-shadow(0 24px 30px rgba(6, 26, 51, 0.18));
+  display: block;
 }
 
 .heroCallouts {
@@ -384,7 +391,7 @@
 .calloutTick {
   margin-top: 9px;
   height: 1px;
-  background: #8db7e6;
+  background: #9fd1f5;
   position: relative;
 }
 
@@ -395,7 +402,7 @@
   top: -3px;
   width: 7px;
   height: 7px;
-  border: 1px solid #1a6dd0;
+  border: 1px solid #1668c4;
   background: #fff;
 }
 
@@ -455,7 +462,9 @@
   object-fit: contain;
   filter: grayscale(1);
   opacity: 0.72;
-  transition: filter 0.2s ease, opacity 0.2s ease;
+  transition:
+    filter 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .adopterLogo:hover {
@@ -464,12 +473,18 @@
 }
 
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marqueeTrack { animation: none; }
+  .marqueeTrack {
+    animation: none;
+  }
 }
 
 /* ---------- what is hudi ---------- */
@@ -539,7 +554,9 @@
   border-top: 3px solid;
   padding: 22px 20px 24px;
   color: var(--l-ink) !important;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 .layerCard:hover {
@@ -551,10 +568,18 @@
   flex: 1;
 }
 
-.layerCard_L1 { border-top-color: var(--l-navy-800); }
-.layerCard_L2 { border-top-color: var(--l-blue-600); }
-.layerCard_L3 { border-top-color: var(--l-blue-400); }
-.layerCard_L4 { border-top-color: var(--l-blue-200); }
+.layerCard_L1 {
+  border-top-color: var(--l-navy-800);
+}
+.layerCard_L2 {
+  border-top-color: var(--l-blue-600);
+}
+.layerCard_L3 {
+  border-top-color: var(--l-blue-400);
+}
+.layerCard_L4 {
+  border-top-color: var(--l-blue-200);
+}
 
 .layerCardTop {
   display: flex;
@@ -617,10 +642,18 @@
   transition: transform 0.1s linear;
 }
 
-.fill_L1 { background: var(--l-navy-800); }
-.fill_L2 { background: var(--l-blue-600); }
-.fill_L3 { background: var(--l-blue-400); }
-.fill_L4 { background: #7cc6ef; }
+.fill_L1 {
+  background: var(--l-navy-800);
+}
+.fill_L2 {
+  background: var(--l-blue-600);
+}
+.fill_L3 {
+  background: var(--l-blue-400);
+}
+.fill_L4 {
+  background: #7cc6ef;
+}
 
 /* ---------- layer sections ---------- */
 .layer {
@@ -658,10 +691,14 @@
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(59, 163, 240, 0.35) 1px, transparent 1.3px);
+  background-image: radial-gradient(circle, rgba(43, 155, 232, 0.35) 1px, transparent 1.3px);
   background-size: 12px 12px;
-  -webkit-mask-image: radial-gradient(ellipse at 100% 0%, #000 0%, transparent 35%), radial-gradient(ellipse at 0% 100%, #000 0%, transparent 30%);
-  mask-image: radial-gradient(ellipse at 100% 0%, #000 0%, transparent 35%), radial-gradient(ellipse at 0% 100%, #000 0%, transparent 30%);
+  -webkit-mask-image:
+    radial-gradient(ellipse at 100% 0%, #000 0%, transparent 35%),
+    radial-gradient(ellipse at 0% 100%, #000 0%, transparent 30%);
+  mask-image:
+    radial-gradient(ellipse at 100% 0%, #000 0%, transparent 35%),
+    radial-gradient(ellipse at 0% 100%, #000 0%, transparent 30%);
   pointer-events: none;
 }
 
@@ -931,7 +968,7 @@
 .blob i {
   display: inline-block;
   height: 6px;
-  border-radius: 3px;
+  border-radius: 2px;
   background: #e1e5ea;
 }
 
@@ -956,10 +993,18 @@
   border-radius: 1px;
 }
 
-.v0 { background: #e6f0fa; }
-.v1 { background: #a9cbef; }
-.v2 { background: #5b9be0; }
-.v3 { background: var(--l-blue-600); }
+.v0 {
+  background: #e6f0fa;
+}
+.v1 {
+  background: #a9cbef;
+}
+.v2 {
+  background: #5b9be0;
+}
+.v3 {
+  background: var(--l-blue-600);
+}
 
 .steps {
   display: grid;
@@ -1201,7 +1246,7 @@
   position: relative;
   margin-top: 56px;
   padding: 36px 32px 40px;
-  background: linear-gradient(120deg, #1867c8 0%, #1a6dd0 55%, #1d78db 100%);
+  background: linear-gradient(120deg, #1867c8 0%, #1668c4 55%, #1d78db 100%);
   color: #fff;
   overflow: hidden;
 }
@@ -1264,7 +1309,7 @@
   height: 11px;
   border-radius: 50%;
   border: 1.5px solid #fff;
-  background: #1a6dd0;
+  background: #1668c4;
 }
 
 .timeline li + li .timelineDot {
@@ -1384,7 +1429,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(59, 163, 240, 0.4) 1px, transparent 1.3px);
+  background-image: radial-gradient(circle, rgba(43, 155, 232, 0.4) 1px, transparent 1.3px);
   background-size: 12px 12px;
   -webkit-mask-image: linear-gradient(180deg, transparent 45%, #000 100%);
   mask-image: linear-gradient(180deg, transparent 45%, #000 100%);
@@ -1528,5 +1573,45 @@
 
   .postImageSmall {
     width: 110px;
+  }
+}
+
+/* ---------- gateway animation ---------- */
+.gwStep {
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+
+.gwDim {
+  opacity: 0.35;
+}
+
+.gwOn {
+  opacity: 1;
+}
+
+.trace > div {
+  transition:
+    color 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.traceIdle {
+  opacity: 0.38;
+}
+
+.traceNow {
+  color: var(--l-ink);
+}
+
+.traceNow span {
+  color: var(--l-blue-600) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gwStep,
+  .trace > div {
+    transition: none;
   }
 }

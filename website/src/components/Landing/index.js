@@ -11,7 +11,7 @@ import { useDateTimeFormat } from "@docusaurus/theme-common/internal";
 import { originalSlackUrl } from "@site/constants";
 
 import Icon from "./Icons";
-import LayerStack, { LayerGlyph } from "./LayerStack";
+import { LayerGlyph } from "./LayerStack";
 import {
   LAYERS,
   ADOPTERS,
@@ -76,7 +76,7 @@ function Hero() {
     <section className={styles.hero}>
       <div className={clsx("container", styles.heroInner)}>
         <div className={styles.heroBrand}>
-          <LayerGlyph active={1} size={26} />
+          <img src={useBaseUrl("/assets/images/home/mark-layered.svg")} alt="" width={32} height={32} />
           <span>Apache Hudi™</span>
         </div>
         <h1 className={styles.heroTitle}>
@@ -85,9 +85,9 @@ function Hero() {
           data lakehouse
         </h1>
         <p className={styles.heroLead}>
-          Hudi brings database behavior to open storage, then extends it for AI: unstructured data,
-          vectors, and search in the same tables, plus a gateway and CLI built for agents. Apache-licensed,
-          end to end.
+          The open lakehouse platform, extended for AI. Database behavior on open storage, plus unstructured data,
+          vector and text search, an agent gateway, and an AI CLI. Apache-licensed, end to end, and it runs in your own
+          account.
         </p>
         <div className={styles.buttonRow}>
           <Button to="/docs/quick-start-guide">Quick Start</Button>
@@ -98,7 +98,13 @@ function Hero() {
       </div>
       <div className={styles.heroStage}>
         <div className={clsx("container", styles.heroStageInner)}>
-          <LayerStack className={styles.heroStack} />
+          <img
+            src={useBaseUrl("/assets/images/home/layer-stack.webp")}
+            alt="Four stacked layers: the lakehouse foundation, AI-native storage, agentic features, and the full stack"
+            className={styles.heroStack}
+            width={700}
+            height={609}
+          />
           <div className={styles.heroCallouts}>
             <div className={styles.calloutsEyebrow}>[ Four layers · read from L1 up ]</div>
             {[...LAYERS].reverse().map((layer) => (
@@ -149,8 +155,8 @@ function WhatIsHudi() {
   const facts = [
     {
       icon: "calendar",
-      title: "In production since 2016",
-      body: "Created at Uber, now running some of the largest data lakes in the world.",
+      title: "Since 2016",
+      body: "In production at some of the largest data lakes in the world.",
     },
     {
       icon: "shield",
@@ -172,17 +178,16 @@ function WhatIsHudi() {
           <div className={styles.whatCopy}>
             <p>
               <strong>
-                A data lake is just open files, usually Parquet, in cloud object storage. On its own it has
-                no transactions, no updates, and no indexes.
+                A data lake is just open files, usually Parquet, in cloud object storage. On its own it has no
+                transactions, no updates, and no indexes.
               </strong>{" "}
-              Hudi adds them: ACID commits, upserts and deletes, record-level indexes, schema evolution, time
-              travel, and table services that keep everything tuned.
+              Hudi adds them: ACID commits, upserts and deletes, record-level indexes, schema evolution, time travel,
+              and table services that keep everything tuned.
             </p>
             <p>
-              Its core idea is incremental processing: work only on what changed instead of rewriting whole
-              tables. The same storage, ingestion, and indexing layers now serve AI workloads too, including
-              embeddings, document search, agent context, and fine-tuning data, without copying data out of the
-              lake.
+              Its core idea is incremental processing: work only on what changed instead of rewriting whole tables. The
+              same storage, ingestion, and indexing layers now serve AI workloads too, including embeddings, document
+              search, agent context, and fine-tuning data, without copying data out of the lake.
             </p>
             <TextLink to="/docs/overview">Read the docs</TextLink>
           </div>
@@ -210,11 +215,17 @@ function LayersOverview() {
         <div className={styles.centerHead}>
           <Eyebrow>How it fits together</Eyebrow>
           <h2 className={styles.h2}>One project, four layers</h2>
-          <p className={styles.lead}>Each layer builds on the one below it, and nothing below is given up. Jump to any layer.</p>
+          <p className={styles.lead}>
+            Each layer builds on the one below it, and nothing below is given up. Jump to any layer.
+          </p>
         </div>
         <div className={styles.layerCards}>
           {LAYERS.map((layer, i) => (
-            <a key={layer.id} href={`#${layer.id}`} className={clsx(styles.layerCard, styles[`layerCard_${layer.short}`])}>
+            <a
+              key={layer.id}
+              href={`#${layer.id}`}
+              className={clsx(styles.layerCard, styles[`layerCard_${layer.short}`])}
+            >
               <div className={styles.layerCardTop}>
                 <span className={clsx(styles.pill, styles[`badge_${layer.short}`])}>Layer {i + 1}</span>
                 <LayerGlyph active={i} size={32} />
@@ -371,11 +382,21 @@ function HudiTableMock() {
         <table>
           <thead>
             <tr>
-              <th>record <em>rows</em></th>
-              <th>columns <em>structured</em></th>
-              <th>embedding <em>vector</em></th>
-              <th>object <em>blob</em></th>
-              <th>attributes <em>variant</em></th>
+              <th>
+                record <em>rows</em>
+              </th>
+              <th>
+                columns <em>structured</em>
+              </th>
+              <th>
+                embedding <em>vector</em>
+              </th>
+              <th>
+                object <em>blob</em>
+              </th>
+              <th>
+                attributes <em>variant</em>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -445,57 +466,152 @@ function AiStorageLayer() {
   );
 }
 
+const GATEWAY_TRACE = [
+  ["agent", "→", '"Which regions had late shipments this week?"', ["agent"]],
+  ["mcp", "→", "tool call to the agent gateway", ["mcp"]],
+  ["gateway", "→", "catalog ok, cost guard ok", ["gateway"]],
+  ["gateway", "→", "rewritten as an incremental query", ["gateway", "model"]],
+  ["hudi", "→", "reads only the changed records", ["tables"]],
+  ["gateway", "→", "shaped result", ["gateway"]],
+  ["agent", "←", "context returned; only prompts and shaped results crossed the boundary", ["agent", "context"]],
+];
+
+function useGatewayStep() {
+  const [step, setStep] = useState(-1);
+  const ref = React.useRef(null);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    let timer = 0;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        clearInterval(timer);
+        if (entry.isIntersecting) {
+          setStep(0);
+          timer = setInterval(() => setStep((s) => (s + 1) % (GATEWAY_TRACE.length + 1)), 1500);
+        }
+      },
+      { threshold: 0.4 }
+    );
+    if (ref.current) io.observe(ref.current);
+    return () => {
+      io.disconnect();
+      clearInterval(timer);
+    };
+  }, []);
+  return [ref, step];
+}
+
 function GatewayDiagram() {
+  const [ref, step] = useGatewayStep();
+  const animating = step >= 0 && step < GATEWAY_TRACE.length;
+  const lit = animating ? GATEWAY_TRACE[step][3] : null;
+  const part = (key) => clsx(styles.gwStep, lit && (lit.includes(key) ? styles.gwOn : styles.gwDim));
   return (
-    <div className={styles.diagram}>
-      <svg viewBox="0 0 560 230" className={styles.diagramSvg} role="img" aria-label="An AI agent calls the Hudi agent gateway over MCP inside your VPC">
+    <div className={styles.diagram} ref={ref}>
+      <svg
+        viewBox="0 0 560 230"
+        className={styles.diagramSvg}
+        role="img"
+        aria-label="An AI agent calls the Hudi agent gateway over MCP inside your VPC"
+      >
         <defs>
           <pattern id="gwGrid" width="16" height="16" patternUnits="userSpaceOnUse">
             <path d="M16 0H0V16" fill="none" stroke="#D6E3F2" strokeWidth="0.6" />
           </pattern>
           <marker id="gwArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M0 0 8 4 0 8Z" fill="#1E6FD0" />
+            <path d="M0 0 8 4 0 8Z" fill="#1668C4" />
           </marker>
         </defs>
-        <path d="M60 92V20H330V52" fill="none" stroke="#9DBEE3" strokeDasharray="3 3" markerEnd="url(#gwArrow)" />
-        <text x="72" y="16" className={styles.svgMono}>← context</text>
-        <rect x="200" y="44" width="350" height="140" rx="6" fill="url(#gwGrid)" stroke="#8DB7E6" strokeDasharray="4 3" />
-        <text x="212" y="62" className={styles.svgMono}>[ your vpc ]</text>
-        <circle cx="60" cy="118" r="32" fill="#5B6777" />
-        <rect x="46" y="106" width="28" height="22" rx="5" fill="none" stroke="#FFFFFF" strokeWidth="2" />
-        <circle cx="55" cy="117" r="2" fill="#FFFFFF" />
-        <circle cx="65" cy="117" r="2" fill="#FFFFFF" />
-        <path d="M60 100v6" stroke="#FFFFFF" strokeWidth="2" />
-        <text x="60" y="170" textAnchor="middle" className={styles.svgLabel}>Any AI agent</text>
-        <path d="M93 118H228" stroke="#1E6FD0" strokeWidth="1.5" markerEnd="url(#gwArrow)" />
-        <rect x="104" y="106" width="108" height="24" rx="12" fill="#FFFFFF" stroke="#1E6FD0" strokeWidth="1.5" />
-        <text x="158" y="122" textAnchor="middle" className={styles.svgMonoStrong}>MCP · tool call</text>
-        <rect x="232" y="80" width="150" height="76" rx="6" fill="#4A93E6" />
-        <text x="246" y="106" className={styles.svgTitle}>Agent gateway</text>
-        <rect x="246" y="122" width="58" height="18" rx="3" fill="#FFFFFF" fillOpacity="0.25" />
-        <text x="275" y="135" textAnchor="middle" className={styles.svgChip}>✓ catalog</text>
-        <rect x="310" y="122" width="64" height="18" rx="3" fill="#FFFFFF" fillOpacity="0.25" />
-        <text x="342" y="135" textAnchor="middle" className={styles.svgChip}>✓ cost guard</text>
-        <path d="M382 118H404" stroke="#1E6FD0" strokeWidth="1.5" markerEnd="url(#gwArrow)" />
-        <rect x="408" y="70" width="130" height="96" rx="5" fill="#FFFFFF" stroke="#D6E3F2" />
-        <rect x="408" y="70" width="130" height="20" rx="5" fill="#8AA4C2" />
-        <text x="418" y="84" className={styles.svgChip}>HUDI TABLES</text>
-        <rect x="418" y="100" width="50" height="5" rx="2.5" fill="#9CC8F2" />
-        <rect x="474" y="100" width="40" height="5" rx="2.5" fill="#9CC8F2" />
-        <rect x="418" y="114" width="70" height="5" rx="2.5" fill="#D6E3F2" />
-        <rect x="418" y="128" width="40" height="5" rx="2.5" fill="#9CC8F2" />
-        <rect x="464" y="128" width="54" height="5" rx="2.5" fill="#9CC8F2" />
-        <text x="418" y="154" className={styles.svgLabelSmall}>Incremental queries</text>
-        <path d="M307 156V196" stroke="#9DBEE3" strokeDasharray="3 3" />
-        <rect x="250" y="190" width="114" height="20" rx="10" fill="#FFFFFF" stroke="#9DBEE3" />
-        <text x="307" y="204" textAnchor="middle" className={styles.svgMono}>configured model</text>
-        <text x="307" y="226" textAnchor="middle" className={styles.svgLabelSmall}>self-hosted or hosted endpoint</text>
+        <g className={part("context")}>
+          <path d="M60 92V20H330V52" fill="none" stroke="#9DBEE3" strokeDasharray="3 3" markerEnd="url(#gwArrow)" />
+          <text x="72" y="16" className={styles.svgMono}>
+            ← context
+          </text>
+        </g>
+        <rect
+          x="200"
+          y="44"
+          width="350"
+          height="140"
+          rx="6"
+          fill="url(#gwGrid)"
+          stroke="#9FD1F5"
+          strokeDasharray="4 3"
+        />
+        <text x="212" y="62" className={styles.svgMono}>
+          [ your vpc ]
+        </text>
+        <g className={part("agent")}>
+          <circle cx="60" cy="118" r="32" fill="#5B6777" />
+          <rect x="46" y="106" width="28" height="22" rx="5" fill="none" stroke="#FFFFFF" strokeWidth="2" />
+          <circle cx="55" cy="117" r="2" fill="#FFFFFF" />
+          <circle cx="65" cy="117" r="2" fill="#FFFFFF" />
+          <path d="M60 100v6" stroke="#FFFFFF" strokeWidth="2" />
+          <text x="60" y="170" textAnchor="middle" className={styles.svgLabel}>
+            Any AI agent
+          </text>
+        </g>
+        <g className={part("mcp")}>
+          <path d="M93 118H228" stroke="#1668C4" strokeWidth="1.5" markerEnd="url(#gwArrow)" />
+          <rect x="104" y="106" width="108" height="24" rx="12" fill="#FFFFFF" stroke="#1668C4" strokeWidth="1.5" />
+          <text x="158" y="122" textAnchor="middle" className={styles.svgMonoStrong}>
+            MCP · tool call
+          </text>
+        </g>
+        <g className={part("gateway")}>
+          <rect x="232" y="80" width="150" height="76" rx="6" fill="#4A93E6" />
+          <text x="246" y="106" className={styles.svgTitle}>
+            Agent gateway
+          </text>
+          <rect x="246" y="122" width="58" height="18" rx="3" fill="#FFFFFF" fillOpacity="0.25" />
+          <text x="275" y="135" textAnchor="middle" className={styles.svgChip}>
+            ✓ catalog
+          </text>
+          <rect x="310" y="122" width="64" height="18" rx="3" fill="#FFFFFF" fillOpacity="0.25" />
+          <text x="342" y="135" textAnchor="middle" className={styles.svgChip}>
+            ✓ cost guard
+          </text>
+        </g>
+        <g className={part("tables")}>
+          <path d="M382 118H404" stroke="#1668C4" strokeWidth="1.5" markerEnd="url(#gwArrow)" />
+          <rect x="408" y="70" width="130" height="96" rx="5" fill="#FFFFFF" stroke="#D6E3F2" />
+          <rect x="408" y="70" width="130" height="20" rx="5" fill="#8AA4C2" />
+          <text x="418" y="84" className={styles.svgChip}>
+            HUDI TABLES
+          </text>
+          <rect x="418" y="100" width="50" height="5" rx="2.5" fill="#9CC8F2" />
+          <rect x="474" y="100" width="40" height="5" rx="2.5" fill="#9CC8F2" />
+          <rect x="418" y="114" width="70" height="5" rx="2.5" fill="#D6E3F2" />
+          <rect x="418" y="128" width="40" height="5" rx="2.5" fill="#9CC8F2" />
+          <rect x="464" y="128" width="54" height="5" rx="2.5" fill="#9CC8F2" />
+          <text x="418" y="154" className={styles.svgLabelSmall}>
+            Incremental queries
+          </text>
+        </g>
+        <g className={part("model")}>
+          <path d="M307 156V196" stroke="#9DBEE3" strokeDasharray="3 3" />
+          <rect x="250" y="190" width="114" height="20" rx="10" fill="#FFFFFF" stroke="#9DBEE3" />
+          <text x="307" y="204" textAnchor="middle" className={styles.svgMono}>
+            configured model
+          </text>
+          <text x="307" y="226" textAnchor="middle" className={styles.svgLabelSmall}>
+            self-hosted or hosted endpoint
+          </text>
+        </g>
       </svg>
-      <div className={styles.trace}>
-        <div><span>agent</span> → "Which regions had late shipments this week?"</div>
-        <div><span>mcp</span> → tool call to the agent gateway</div>
-        <div><span>gateway</span> → catalog ok · cost guard ok · incremental query planned</div>
-        <div className={styles.traceStrong}><span>result</span> → 14 rows, shaped and returned to the agent</div>
+      <div className={styles.trace} aria-live="off">
+        {GATEWAY_TRACE.map(([who, dir, text], i) => (
+          <div
+            key={i}
+            className={clsx(
+              animating && i > step && styles.traceIdle,
+              animating && i === step && styles.traceNow,
+              i === GATEWAY_TRACE.length - 1 && styles.traceStrong
+            )}
+          >
+            <span>{who}</span> {dir} {text}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -519,7 +635,8 @@ function CliMock() {
       </div>
       <div className={styles.terminalBody}>
         <div>
-          <span className={styles.prompt}>$</span> hudi ai <span className={styles.dim}>"why are queries on orders slow?"</span>
+          <span className={styles.prompt}>$</span> hudi ai{" "}
+          <span className={styles.dim}>"why are queries on orders slow?"</span>
         </div>
         {lines.map(([mark, cmd, out]) => (
           <div key={cmd} className={styles.terminalLine}>
@@ -563,8 +680,8 @@ function AgenticLayer() {
             <div className={styles.agentKicker}>Agents operate Hudi</div>
             <h3 className={styles.h3Large}>AI CLI with agentic skills</h3>
             <p className={styles.cardBody}>
-              An assistant that runs and tunes the lakehouse from the command line. It inspects tables, finds the
-              cause of slow queries, proposes layout changes, and runs maintenance after you confirm.
+              An assistant that runs and tunes the lakehouse from the command line. It inspects tables, finds the cause
+              of slow queries, proposes layout changes, and runs maintenance after you confirm.
             </p>
             <TextLink to="/docs/cli">Read the docs</TextLink>
           </div>
@@ -603,7 +720,11 @@ function FullStackLayer() {
                 <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 1.8 21 6.1l2.2 9.8-6.2 7.8H7L.8 15.9 3 6.1 12 1.8Z" fill="#326CE5" />
                   <circle cx="12" cy="12.5" r="4.2" fill="none" stroke="#FFFFFF" strokeWidth="1.4" />
-                  <path d="M12 5.5v4M12 15.5v4M5.4 10.3l3.8 1.2M14.8 13.5l3.8 1.2M7.6 18l2.4-3.2M14 10.2l2.4-3.2M16.4 18 14 14.8M10 10.2 7.6 7" stroke="#FFFFFF" strokeWidth="1.2" />
+                  <path
+                    d="M12 5.5v4M12 15.5v4M5.4 10.3l3.8 1.2M14.8 13.5l3.8 1.2M7.6 18l2.4-3.2M14 10.2l2.4-3.2M16.4 18 14 14.8M10 10.2 7.6 7"
+                    stroke="#FFFFFF"
+                    strokeWidth="1.2"
+                  />
                 </svg>
                 kubernetes
               </span>

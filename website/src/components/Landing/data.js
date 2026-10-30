@@ -41,7 +41,7 @@ export const LAYERS = [
     short: "L2",
     name: "AI-native storage",
     hero: "Vectors, blobs, variants, and text indexes in the same tables as your rows.",
-    card: "One table for structured and unstructured data, and the path from raw files to search.",
+    card: "Native VECTOR, BLOB, and VARIANT columns, and the path from unstructured ingestion to search.",
   },
   {
     id: "layer-3",
@@ -222,7 +222,7 @@ export const WHY_HUDI = [
   {
     icon: "chart",
     title: "Proven at scale",
-    body: "Runs some of the largest data lakes in the world at Uber, Walmart, ByteDance, Amazon, Robinhood, Zendesk, and GE Aviation.",
+    body: "In production at Uber, Walmart, ByteDance/TikTok, Amazon, Robinhood, Zendesk, GE Aviation, Peloton, and JD.com.",
   },
   {
     icon: "flow",
