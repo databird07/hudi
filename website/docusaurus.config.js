@@ -261,6 +261,18 @@ module.exports = {
           ],
         },
         {
+          label: "AI & Agents",
+          position: "left",
+          items: [
+            { label: "Overview", to: "/#layer-2" },
+            { label: "Unstructured data", to: "/docs/unstructured-data-quick-start-guide" },
+            { label: "Vector and text search", to: "/docs/indexes" },
+            { label: "Agent gateway", to: "/#layer-3" },
+            { label: "AI CLI", to: "/#layer-3" },
+            { label: "Kubernetes", to: "/#layer-4" },
+          ],
+        },
+        {
           label: "Contribute",
           position: "left",
           items: [
@@ -351,6 +363,24 @@ module.exports = {
           ],
         },
         { to: "/releases/download", label: "Download", position: "left" },
+        {
+          href: "https://github.com/apache/hudi",
+          position: "right",
+          className: "nav-icon-link nav-icon-github",
+          "aria-label": "GitHub repository",
+        },
+        {
+          href: originalSlackUrl,
+          position: "right",
+          className: "nav-icon-link nav-icon-slack",
+          "aria-label": "Slack community",
+        },
+        {
+          to: "/docs/quick-start-guide",
+          label: "Quick Start",
+          position: "right",
+          className: "header-cta",
+        },
       ],
     },
     footer: {
@@ -412,6 +442,18 @@ module.exports = {
               label: "FAQ",
               to: "/learn/faq",
             },
+          ],
+        },
+        {
+          title: "AI & Agents",
+          items: [
+            { label: "Overview", to: "/#layer-2" },
+            { label: "Unstructured", to: "/docs/unstructured-data-quick-start-guide" },
+            { label: "Vector search", to: "/docs/indexes" },
+            { label: "Text search", to: "/docs/indexes" },
+            { label: "Agent gateway", to: "/#layer-3" },
+            { label: "AI CLI", to: "/#layer-3" },
+            { label: "Kubernetes", to: "/#layer-4" },
           ],
         },
         {
