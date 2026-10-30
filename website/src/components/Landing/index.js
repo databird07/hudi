@@ -43,7 +43,7 @@ function Button({ to, href, children, variant = "dark" }) {
 function TextLink({ to, href, children, down = false, className }) {
   return (
     <Link to={to} href={href} className={clsx(styles.textLink, className)}>
-      {children} <Icon name={down ? "arrowDown" : "arrowRight"} size={14} strokeWidth={2} />
+      {children} <Icon name={down ? "arrowDown" : "arrowRight"} size={16} />
     </Link>
   );
 }
@@ -51,7 +51,7 @@ function TextLink({ to, href, children, down = false, className }) {
 function IconBox({ name, dark = false }) {
   return (
     <span className={clsx(styles.iconBox, dark && styles.iconBoxDark)}>
-      <Icon name={name} size={18} />
+      <Icon name={name} size={22} />
     </span>
   );
 }
@@ -73,10 +73,6 @@ function Hero() {
   return (
     <section className={styles.hero}>
       <div className={clsx("container", styles.heroInner)}>
-        <div className={styles.heroBrand}>
-          <img src={useBaseUrl("/assets/images/home/mark-layered.svg")} alt="" width={32} height={32} />
-          <span>Apache Hudi™</span>
-        </div>
         <h1 className={styles.heroTitle}>
           The open-source <span className={styles.accent}>agentic</span>
           <br />
@@ -231,7 +227,7 @@ function LayersOverview() {
               <h3 className={styles.h3}>{layer.name}</h3>
               <p className={styles.cardBody}>{layer.card}</p>
               <span className={styles.textLink}>
-                Jump to this layer <Icon name="arrowDown" size={14} strokeWidth={2} />
+                Jump to this layer <Icon name="arrowDown" size={16} />
               </span>
             </a>
           ))}
