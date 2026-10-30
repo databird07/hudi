@@ -61,9 +61,7 @@ function LayerHeader({ layer, index, title, lead, dark = false }) {
     <div className={styles.layerHeader}>
       <div className={clsx(styles.layerEyebrow, dark && styles.layerEyebrowDark)}>
         <LayerGlyph active={index} />
-        <span>
-          [ Layer {index + 1} — {layer.name} ]
-        </span>
+        <span>[ {layer.name} ]</span>
       </div>
       <h2 className={styles.h2}>{title}</h2>
       <p className={styles.lead}>{lead}</p>
@@ -91,7 +89,7 @@ function Hero() {
         </p>
         <div className={styles.buttonRow}>
           <Button to="/docs/quick-start-guide">Quick Start</Button>
-          <Button to="#layer-4" variant="light">
+          <Button to="#full-stack" variant="light">
             Deploy on Kubernetes
           </Button>
         </div>
@@ -106,11 +104,11 @@ function Hero() {
             height={609}
           />
           <div className={styles.heroCallouts}>
-            <div className={styles.calloutsEyebrow}>[ Four layers · read from L1 up ]</div>
+            <div className={styles.calloutsEyebrow}>[ Four layers · read from the bottom up ]</div>
             {[...LAYERS].reverse().map((layer) => (
               <a key={layer.id} href={`#${layer.id}`} className={styles.callout}>
                 <span className={styles.calloutTick} />
-                <span className={clsx(styles.badge, styles[`badge_${layer.short}`])}>{layer.short}</span>
+                <span className={clsx(styles.badge, styles[`badge_${layer.tone}`])} aria-hidden="true" />
                 <span>
                   <span className={styles.calloutTitle}>{layer.name}</span>
                   <span className={styles.calloutBody}>{layer.hero}</span>
@@ -224,16 +222,16 @@ function LayersOverview() {
             <a
               key={layer.id}
               href={`#${layer.id}`}
-              className={clsx(styles.layerCard, styles[`layerCard_${layer.short}`])}
+              className={clsx(styles.layerCard, styles[`layerCard_${layer.tone}`])}
             >
               <div className={styles.layerCardTop}>
-                <span className={clsx(styles.pill, styles[`badge_${layer.short}`])}>Layer {i + 1}</span>
+                <span className={clsx(styles.badge, styles[`badge_${layer.tone}`])} aria-hidden="true" />
                 <LayerGlyph active={i} size={32} />
               </div>
               <h3 className={styles.h3}>{layer.name}</h3>
               <p className={styles.cardBody}>{layer.card}</p>
               <span className={styles.textLink}>
-                Jump to Layer {i + 1} <Icon name="arrowDown" size={14} strokeWidth={2} />
+                Jump to this layer <Icon name="arrowDown" size={14} strokeWidth={2} />
               </span>
             </a>
           ))}
@@ -291,12 +289,12 @@ function LayerTabs() {
             className={clsx(styles.layerTab, i === active && styles.layerTabActive)}
           >
             <span className={styles.layerTabLabel}>
-              <span className={clsx(styles.badge, styles[`badge_${layer.short}`])}>{layer.short}</span>
+              <span className={clsx(styles.badge, styles[`badge_${layer.tone}`])} aria-hidden="true" />
               {layer.name}
             </span>
             <span className={styles.layerTabTrack}>
               <span
-                className={clsx(styles.layerTabFill, styles[`fill_${layer.short}`])}
+                className={clsx(styles.layerTabFill, styles[`fill_${layer.tone}`])}
                 style={{ transform: `scaleX(${progress[i]})` }}
               />
             </span>
@@ -309,7 +307,7 @@ function LayerTabs() {
 
 function FoundationLayer() {
   return (
-    <section id="layer-1" className={clsx(styles.layer, styles.layerDark)}>
+    <section id="lakehouse-foundation" className={clsx(styles.layer, styles.layerDark)}>
       <div className="container">
         <LayerHeader
           dark
@@ -439,7 +437,7 @@ function HudiTableMock() {
 
 function AiStorageLayer() {
   return (
-    <section id="layer-2" className={styles.layer}>
+    <section id="ai-native-storage" className={styles.layer}>
       <div className="container">
         <LayerHeader
           layer={LAYERS[1]}
@@ -652,7 +650,7 @@ function CliMock() {
 
 function AgenticLayer() {
   return (
-    <section id="layer-3" className={clsx(styles.layer, styles.sectionTint)}>
+    <section id="agentic-features" className={clsx(styles.layer, styles.sectionTint)}>
       <div className="container">
         <LayerHeader
           layer={LAYERS[2]}
@@ -697,7 +695,7 @@ function AgenticLayer() {
 
 function FullStackLayer() {
   return (
-    <section id="layer-4" className={styles.layer}>
+    <section id="full-stack" className={styles.layer}>
       <div className="container">
         <LayerHeader layer={LAYERS[3]} index={3} title="One install on Kubernetes" lead="" />
         <div className={styles.stackGrid}>

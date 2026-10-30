@@ -30,29 +30,29 @@ import ClickHouseIcon from "@site/src/components/Integrations/Icons/clickhouse-s
 
 export const LAYERS = [
   {
-    id: "layer-1",
-    short: "L1",
+    id: "lakehouse-foundation",
+    tone: "foundation",
     name: "The lakehouse foundation",
     hero: "Open formats, catalogs, engines, ACID transactions, indexes and table services.",
     card: "Open file and table formats, catalogs, ingestion, query engines, and database behavior on top.",
   },
   {
-    id: "layer-2",
-    short: "L2",
+    id: "ai-native-storage",
+    tone: "storage",
     name: "AI-native storage",
     hero: "Vectors, blobs, variants, and text indexes in the same tables as your rows.",
     card: "Native VECTOR, BLOB, and VARIANT columns, and the path from unstructured ingestion to search.",
   },
   {
-    id: "layer-3",
-    short: "L3",
+    id: "agentic-features",
+    tone: "agentic",
     name: "Agentic features",
     hero: "An agent gateway that serves governed context, and an AI CLI that operates the lakehouse.",
     card: "Agents query the lakehouse through a gateway, and help run it from the command line.",
   },
   {
-    id: "layer-4",
-    short: "L4",
+    id: "full-stack",
+    tone: "stack",
     name: "The full stack",
     hero: "One Helm install: storage, catalog, query engine, gateway, and tooling.",
     card: "Helm charts that bring up the whole lakehouse on any Kubernetes cluster.",

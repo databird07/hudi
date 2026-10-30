@@ -264,12 +264,12 @@ module.exports = {
           label: "AI & Agents",
           position: "left",
           items: [
-            { label: "Overview", to: "/#layer-2" },
+            { label: "Overview", to: "/#ai-native-storage" },
             { label: "Unstructured data", to: "/docs/unstructured-data-quick-start-guide" },
             { label: "Vector and text search", to: "/docs/indexes" },
-            { label: "Agent gateway", to: "/#layer-3" },
-            { label: "AI CLI", to: "/#layer-3" },
-            { label: "Kubernetes", to: "/#layer-4" },
+            { label: "Agent gateway", to: "/#agentic-features" },
+            { label: "AI CLI", to: "/#agentic-features" },
+            { label: "Kubernetes", to: "/#full-stack" },
           ],
         },
         {
@@ -447,13 +447,13 @@ module.exports = {
         {
           title: "AI & Agents",
           items: [
-            { label: "Overview", to: "/#layer-2" },
+            { label: "Overview", to: "/#ai-native-storage" },
             { label: "Unstructured", to: "/docs/unstructured-data-quick-start-guide" },
             { label: "Vector search", to: "/docs/indexes" },
             { label: "Text search", to: "/docs/indexes" },
-            { label: "Agent gateway", to: "/#layer-3" },
-            { label: "AI CLI", to: "/#layer-3" },
-            { label: "Kubernetes", to: "/#layer-4" },
+            { label: "Agent gateway", to: "/#agentic-features" },
+            { label: "AI CLI", to: "/#agentic-features" },
+            { label: "Kubernetes", to: "/#full-stack" },
           ],
         },
         {

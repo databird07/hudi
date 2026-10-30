@@ -271,24 +271,26 @@
 }
 
 .badge {
-  width: 22px;
-  height: 18px;
+  width: 12px;
+  height: 12px;
+  margin-top: 5px;
+  flex-shrink: 0;
 }
 
 .pill {
   padding: 4px 8px;
 }
 
-.badge_L1 {
+.badge_foundation {
   background: var(--l-navy-800);
 }
-.badge_L2 {
+.badge_storage {
   background: var(--l-blue-600);
 }
-.badge_L3 {
+.badge_agentic {
   background: var(--l-blue-400);
 }
-.badge_L4 {
+.badge_stack {
   background: var(--l-blue-200);
   color: var(--l-navy-800);
 }
@@ -568,16 +570,16 @@
   flex: 1;
 }
 
-.layerCard_L1 {
+.layerCard_foundation {
   border-top-color: var(--l-navy-800);
 }
-.layerCard_L2 {
+.layerCard_storage {
   border-top-color: var(--l-blue-600);
 }
-.layerCard_L3 {
+.layerCard_agentic {
   border-top-color: var(--l-blue-400);
 }
-.layerCard_L4 {
+.layerCard_stack {
   border-top-color: var(--l-blue-200);
 }
 
@@ -642,16 +644,16 @@
   transition: transform 0.1s linear;
 }
 
-.fill_L1 {
+.fill_foundation {
   background: var(--l-navy-800);
 }
-.fill_L2 {
+.fill_storage {
   background: var(--l-blue-600);
 }
-.fill_L3 {
+.fill_agentic {
   background: var(--l-blue-400);
 }
-.fill_L4 {
+.fill_stack {
   background: #7cc6ef;
 }
 
